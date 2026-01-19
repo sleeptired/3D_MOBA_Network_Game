@@ -6,9 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Tesst.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
     path: Assets/Scenes/Lumia Island.unity
     guid: 7677b0f1f4798674eb66e21a1af7baea
+  - enabled: 0
+    path: Assets/Scenes/Tesst.unity
+    guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects: {}

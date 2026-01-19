@@ -29,6 +29,25 @@ public class PlayerController : NetworkBehaviour
             var camScript = _cam.GetComponent<CameraFollow>();
             if (camScript != null) camScript.SetTarget(transform);
         }
+
+        // 서버가 위치 지정해주기 (랜덤 스폰)
+        if (IsServer) // 오직 '서버'만 이 명령을 내릴 수 있음
+        {
+            // 맵에 있는 "Respawn" 태그 달린 녀석들을 다 찾음
+            GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("Respawn");
+
+            if (spawnPoints.Length > 0)
+            {
+                // 랜덤으로 하나 뽑기
+                int randIndex = Random.Range(0, spawnPoints.Length);
+                Vector3 spawnPos = spawnPoints[randIndex].transform.position;
+
+                // [중요] NavMeshAgent를 쓰는 경우, 그냥 transform.position을 바꾸면 에러 남!
+                // 반드시 Warp() 함수를 써서 순간이동 시켜야 함.
+                if (_agent == null) _agent = GetComponent<NavMeshAgent>();
+                _agent.Warp(spawnPos);
+            }
+        }
     }
 
     void Update()
