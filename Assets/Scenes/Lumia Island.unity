@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 119948488}
   - component: {fileID: 119948487}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: MainUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -236,7 +236,7 @@ GameObject:
   - component: {fileID: 173317962}
   - component: {fileID: 173317961}
   m_Layer: 0
-  m_Name: NetworkUI
+  m_Name: UIManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3216,6 +3216,101 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1718897598
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1718897600}
+  - component: {fileID: 1718897599}
+  - component: {fileID: 1718897602}
+  - component: {fileID: 1718897601}
+  - component: {fileID: 1718897603}
+  m_Layer: 0
+  m_Name: PoolManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1718897599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718897598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78a44817114ff0f4fa274f449dcac12a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1718897600
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718897598}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1718897601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718897598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36d25615428ee5a46ba8cbd58be8aa09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolName: Bullet
+  prefabToPool: {fileID: 8493000671390927445, guid: cc526ba1c5af8014ca9543f2b949190d,
+    type: 3}
+  poolSize: 20
+--- !u!114 &1718897602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718897598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36d25615428ee5a46ba8cbd58be8aa09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolName: MoveIcon
+  prefabToPool: {fileID: 7490624625621545039, guid: 26f3baa07ee27554eb178b00c3a48e81,
+    type: 3}
+  poolSize: 10
+--- !u!114 &1718897603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718897598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36d25615428ee5a46ba8cbd58be8aa09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  poolName: FanSkill
+  prefabToPool: {fileID: 8630339324215250995, guid: 0aceac0745a36f942aac3cea3488adef,
+    type: 3}
+  poolSize: 20
 --- !u!1 &1752918796
 GameObject:
   m_ObjectHideFlags: 0
@@ -4268,3 +4363,4 @@ SceneRoots:
   - {fileID: 119948490}
   - {fileID: 1858985868}
   - {fileID: 173317962}
+  - {fileID: 1718897600}
