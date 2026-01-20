@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+//NetworkBehaviour로 변경해야한다 나중에
 public class Projectile : MonoBehaviour
 {
     [Header("외부에서 주입받는 데이터")]
