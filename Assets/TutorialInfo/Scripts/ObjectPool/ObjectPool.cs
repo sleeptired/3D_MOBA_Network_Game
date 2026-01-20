@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ObjectPool : MonoBehaviour
@@ -28,7 +29,10 @@ public class ObjectPool : MonoBehaviour
         {
             GameObject obj = Instantiate(prefabToPool);
             obj.SetActive(false);
-            obj.transform.SetParent(transform);
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                obj.transform.SetParent(transform);
+            }
             _poolList.Add(obj);
         }
     }

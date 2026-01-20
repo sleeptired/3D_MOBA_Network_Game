@@ -6,8 +6,8 @@ using UnityEngine;
 public class Projectile : MonoBehaviour
 {
     [Header("외부에서 주입받는 데이터")]
-    public float speed;          // 투사체 속도
-    public float stunDuration;   // 기절 시간
+    private float _speed;          // 투사체 속도
+    private float _stunDuration;//스턴시간
 
     private ulong _shooterId;    // 쏜 사람 ID (팀킬 방지용)
     private Transform _tr;       // 최적화용 변수
@@ -18,10 +18,11 @@ public class Projectile : MonoBehaviour
     }
 
     // 풀에서 꺼낼 때 초기화 (PlayerController가 호출함)
-    public void Initialize(ulong shooterId)
+    public void Initialize(ulong shooterId, float duration, float newSpeed)
     {
         _shooterId = shooterId;
-
+        _stunDuration = duration; //스턴시간 저장
+        _speed = newSpeed;
         // 3초 뒤에 자동으로 사라지게 예약 (안 맞았을 경우)
         CancelInvoke();
         Invoke(nameof(Deactivate), 3.0f);
@@ -39,7 +40,7 @@ public class Projectile : MonoBehaviour
     {
         // [이동] 앞으로 전진
         // (단순 이동은 서버/클라 모두 실행해서 부드럽게 보이게 함)
-        _tr.Translate(Vector3.forward * speed * Time.deltaTime);
+        _tr.Translate(Vector3.forward * _speed * Time.deltaTime);
     }
 
     // [충돌 감지]
@@ -57,12 +58,11 @@ public class Projectile : MonoBehaviour
                 if (netObj.OwnerClientId == _shooterId) return;
             }
 
-            // 3. [핵심] 기절 적용!
-            // (ProjectileSkillData에서 설정한 시간만큼 기절시킴)
-            targetStatus.ApplyTemporaryStateServerRpc(UnitStatus.StateFlags.Stunned, stunDuration);
+            // 3.기절 적용!
+            //Debug.Log($"[적중] {other.name}에게 {_stunDuration}초 기절 적용!");
+            targetStatus.ApplyTemporaryStateServerRpc(UnitStatus.StateFlags.Stunned, _stunDuration);
 
-            Debug.Log($"[적중] {other.name}에게 {stunDuration}초 기절 적용!");
-
+            gameObject.SetActive(false);
             // 4. 할 일 다 했으니 사라짐
             Deactivate();
         }

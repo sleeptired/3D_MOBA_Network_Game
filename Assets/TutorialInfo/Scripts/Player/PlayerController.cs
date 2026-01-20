@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Unity.Burst.CompilerServices;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.ProBuilder;
@@ -15,6 +16,13 @@ public class PlayerController : NetworkBehaviour
     [Header("Phase 1: 스킬 설정")]
     public GameObject skillIndicator;  // 조준 화살표 오브젝트
     //public FanVisualizer fanVisualizer;
+    [Header("캐릭터 데이터 & 인디케이터")]
+    public CharacterData myData;       // 만든 SO를 여기에 넣음
+    public GameObject rangeIndicator;
+
+    [Header("발사체 프리팹 (직접 할당 필수!)")]
+    public GameObject projectilePrefab; //
+
 
     // ------------------------------------------------
     // 컴포넌트 참조
@@ -117,6 +125,44 @@ public class PlayerController : NetworkBehaviour
         {
             HandleMovementMode(); // 평소 이동 모드
         }
+
+        // A키를 누를 때 사거리 표시기 제어
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            rangeIndicator.SetActive(true);
+            // 데이터에 설정된 사거리에 맞춰 크기 조절 (반지름 -> 지름)
+            float size = myData.attackRange * 2f;
+            rangeIndicator.transform.localScale = new Vector3(size, 0.1f, size);
+        }
+
+        if (Input.GetKeyUp(KeyCode.A))
+        {
+            if (rangeIndicator != null) rangeIndicator.SetActive(false);
+        }
+
+        // 평타 사거리 표시기가 켜져 있을 때만 공격 시도
+        if (rangeIndicator.activeSelf && Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;   
+            int layerMask = LayerMask.GetMask("Player");
+            if (Physics.Raycast(ray, out hit, 100f, layerMask))
+            {
+
+                if (hit.collider.CompareTag("Player") && hit.collider.gameObject != gameObject)
+                {
+                    float dist = Vector3.Distance(transform.position, hit.transform.position);
+                    if (dist <= myData.attackRange)
+                    {
+                        Debug.Log("<color=green>[Step 3] 타겟 확인 및 발사!</color>");
+                        var targetNetObj = hit.collider.GetComponent<NetworkObject>();
+                        FireHomingAttackServerRpc(targetNetObj.NetworkObjectId);
+                        rangeIndicator.SetActive(false);
+                    }
+                }
+            }
+        }
+
     }
 
     // ----------------------------------------------------
@@ -253,6 +299,7 @@ public class PlayerController : NetworkBehaviour
     // [공통 함수] 실제로 풀에서 꺼내고 세팅하는 로직
     private void SpawnBullet(string poolName, Vector3 dir, float speed, float stunTime)
     {
+        Vector3 spawnPos = transform.position + Vector3.up + (transform.forward * 1.0f);
         GameObject bullet = PoolManager.Instance.Spawn(poolName, transform.position + Vector3.up, Quaternion.LookRotation(dir));
 
         if (bullet != null)
@@ -260,9 +307,10 @@ public class PlayerController : NetworkBehaviour
             var proj = bullet.GetComponent<Projectile>();
             if (proj != null)
             {
-                proj.Initialize(OwnerClientId);
-                proj.speed = speed;
-                proj.stunDuration = stunTime;
+                //proj.Initialize(OwnerClientId, stunTime);
+                //proj.speed = speed;
+                //proj.stunDuration = stunTime;
+                proj.Initialize(OwnerClientId, stunTime, speed);
             }
         }
     }
@@ -312,6 +360,70 @@ public class PlayerController : NetworkBehaviour
             {
                 // 보여줘! (Show 함수 안에서 0.5초 뒤 꺼지는 거 예약되어 있음)
                 visualizer.Show(duration, angle, range, color);
+            }
+        }
+    }
+
+    //해결 전 코드
+    //[ServerRpc]
+    //private void FireHomingAttackServerRpc(ulong targetId)
+    //{
+    //    if (projectilePrefab == null)
+    //    {
+    //        Debug.LogError("PlayerController에 projectilePrefab이 할당되지 않았습니다!");
+    //        return;
+    //    }
+    //
+    //    // 1. 생성 위치 설정 (플레이어 앞)
+    //    Vector3 spawnPos = transform.position + Vector3.up * 1.5f + transform.forward * 0.8f;
+    //    Quaternion spawnRot = Quaternion.identity;
+    //
+    //    // 2. [생성] Instantiate로 직접 생성합니다. (풀링 X)
+    //    GameObject projInstance = Instantiate(projectilePrefab, spawnPos, spawnRot);
+    //
+    //    // 3. [동기화] 네트워크에 "이 물체 태어났다"고 알립니다.
+    //    var netObj = projInstance.GetComponent<NetworkObject>();
+    //    netObj.Spawn();
+    //
+    //    // 4. [초기화] 타겟 정보 입력
+    //    if (projInstance.TryGetComponent(out TargetingProjectile homing))
+    //    {
+    //        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetId, out var targetObj))
+    //        {
+    //            homing.Initialize(targetObj.transform, myData.attackDamage, myData.projectileSpeed);
+    //        }
+    //    }
+    //}
+
+    // 평타 공격 발사(구현) 부분 (해결완료 코드)
+
+    [ServerRpc]
+    private void FireHomingAttackServerRpc(ulong targetId)
+    {
+        if (projectilePrefab == null) return;
+    
+        // 1. 생성 위치 (플레이어 약간 앞)
+        Vector3 spawnPos = transform.position + Vector3.up * 1.5f + transform.forward * 0.8f;
+    
+        // 2. Instantiate (서버에서만 생성)
+        GameObject projInstance = Instantiate(projectilePrefab, spawnPos, Quaternion.LookRotation(transform.forward));
+    
+        // 3. 네트워크 스폰 (필수)
+        var netObj = projInstance.GetComponent<NetworkObject>();
+        netObj.Spawn();
+    
+        // 4. 초기화
+        if (projInstance.TryGetComponent(out TargetingProjectile homing))
+        {
+            // 타겟 오브젝트 찾기
+            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetId, out var targetObj))
+            {
+                homing.Initialize(targetObj.transform, myData.attackDamage, myData.projectileSpeed);
+            }
+            else
+            {
+                // 타겟을 못 찾았으면(그새 죽었거나 접속종료) 투사체 삭제
+                netObj.Despawn();
             }
         }
     }
