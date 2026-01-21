@@ -11,22 +11,21 @@ public class NetworkUIManager : MonoBehaviour
 
     void Start()
     {
-        // 호스트(방장) 버튼 클릭 시
+        // 방장 버튼 
         hostButton.onClick.AddListener(() =>
         {
             NetworkManager.Singleton.StartHost();
             HideButtons(); // 버튼 숨기기
         });
 
-        // 클라이언트(참가자) 버튼 클릭 시
+        // 참가자 버튼
         clientButton.onClick.AddListener(() =>
         {
             NetworkManager.Singleton.StartClient();
             HideButtons(); // 버튼 숨기기
         });
     }
-
-    // 접속하면 버튼 거슬리니까 숨겨버리는 함수
+    //버튼 비활성화
     void HideButtons()
     {
         hostButton.gameObject.SetActive(false);

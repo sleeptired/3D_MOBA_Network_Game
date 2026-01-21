@@ -16,7 +16,7 @@ public class FanVisualizer : MonoBehaviour
     private MeshFilter _meshFilter;
     private MeshRenderer _meshRenderer;
 
-    // 초기화가 되었는지 확인하는 플래그
+    // 초기화가 확인하는 변수
     private bool _isInitialized = false;
 
     void Awake()
@@ -24,10 +24,10 @@ public class FanVisualizer : MonoBehaviour
         Initialize();
     }
 
-    // [수정] 초기화 로직을 별도 함수로 분리 (안전장치)
+    // 초기화 로직을 별도 함수로 분리
     void Initialize()
     {
-        if (_isInitialized) return; // 이미 했으면 패스
+        if (_isInitialized) return; 
 
         _meshFilter = GetComponent<MeshFilter>();
         _meshRenderer = GetComponent<MeshRenderer>();
@@ -46,7 +46,7 @@ public class FanVisualizer : MonoBehaviour
 
     public void Show(float duration, float angle, float range, Color color)
     {
-        // [핵심] 켜지기 전에 Show가 호출되어도, 여기서 초기화를 강제함!
+        // 켜지기 전에 Show가 호출되어도,여기서 초기화를 강제
         if (!_isInitialized) Initialize();
 
         _currentAngle = angle;
@@ -71,7 +71,7 @@ public class FanVisualizer : MonoBehaviour
 
     void CreateFanMesh()
     {
-        // 안전장치: 혹시라도 _mesh가 없으면 다시 만듦
+        // _mesh가 없으면 다시 만듦
         if (_mesh == null) Initialize();
 
         Vector3[] vertices = new Vector3[segments + 2];
@@ -108,25 +108,23 @@ public class FanVisualizer : MonoBehaviour
 
     void Update()
     {
-        // 1. 현재 게임을 플레이 중인 '내 캐릭터'를 찾습니다.
+        // 게임을 플레이 중인 자신의 캐릭터를 찾음.
         if (NetworkManager.Singleton == null || NetworkManager.Singleton.LocalClient == null) return;
 
         var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
         if (localPlayer == null) return;
 
-        // 2. 내 캐릭터의 ApertureMask(시야 범위)를 가져옵니다.
-        // (플레이어 하위 오브젝트 구조에 맞춰 찾습니다)
+        // 자신의 캐릭터의 ApertureMask를 가져옴.
         Transform localAperture = localPlayer.transform.Find("ApetureMask");
         if (localAperture == null) return;
 
-        // 3. 내 시야의 반지름을 계산합니다.
+        // 시야의 반지름을 계산
         float currentVisionRadius = localAperture.lossyScale.x * 5f;
 
-        // 4. 내 위치와 이 스킬 이펙트 사이의 거리를 계산합니다.
+        // 자신의 캐릭터 위치와 스킬 이펙트 사이의 거리를 계산
         float distance = Vector3.Distance(localPlayer.transform.position, transform.position);
 
-        // 5. 시야 범위 밖이면 메쉬를 숨깁니다.
-        // (주의: 활성화/비활성화가 아니라 Renderer만 끄는 것이 좋습니다)
+        // 시야 범위 밖이면 메쉬를 숨김
         _meshRenderer.enabled = (distance <= currentVisionRadius);
     }
 }

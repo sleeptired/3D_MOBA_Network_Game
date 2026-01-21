@@ -13,8 +13,8 @@ public class UnitStatus : NetworkBehaviour
         None = 0,
         Idle = 1 << 0,
         Moving = 1 << 1,
-        Stunned = 1 << 3,   // 기절 (이동X, 스킬X)
-        Slowed = 1 << 4,    // 둔화 (속도감소)
+        Stunned = 1 << 3,   // 기절 
+        Slowed = 1 << 4,    // 둔화 
         Dead = 1 << 5
     }
 
@@ -35,10 +35,7 @@ public class UnitStatus : NetworkBehaviour
         if (_agent != null)
         {
             // NavMeshAgent의 Speed 값 여기에 저장.
-            _originalSpeed = _agent.speed;
-
-            // (디버그용) 확인하고 싶으면 아래 주석을 풀어서 콘솔을 보세요.
-            // Debug.Log($"초기 이동 속도 저장됨: {_originalSpeed}");
+            _originalSpeed = _agent.speed;;
         }
     }
 
@@ -46,11 +43,11 @@ public class UnitStatus : NetworkBehaviour
     {
         CurrentState.OnValueChanged += (oldVal, newVal) => OnStateChanged?.Invoke(newVal);
     }
-    void Update()//상태이상 추가 (핵심 구현 부분)
+    void Update()//상태이상 추가 
     {
         if (_agent == null) return;
 
-        // 1. 기절 (이동 정지)
+        // 기절
         if (HasState(StateFlags.Stunned) || HasState(StateFlags.Dead))
         {
             _agent.isStopped = true;
@@ -61,15 +58,15 @@ public class UnitStatus : NetworkBehaviour
             _agent.isStopped = false;
         }
 
-        // 2. 둔화 처리
+        // 둔화 처리
         if (HasState(StateFlags.Slowed) && !HasState(StateFlags.Stunned))
         {
-            // 아까 Start에서 가져온 7의 절반(3.5)으로 설정
+            // 속도 감소
             _agent.speed = _originalSpeed * 0.5f;
         }
         else
         {
-            // 원래 속도(7)로 복구
+            // 속도 복구
             _agent.speed = _originalSpeed;
         }
     }
@@ -77,12 +74,12 @@ public class UnitStatus : NetworkBehaviour
 
 
 
-    // [상태 적용/해제/체크 로직]
+    // 상태 적용
     public void AddState(StateFlags state) { if (IsServer) CurrentState.Value |= state; }
     public void RemoveState(StateFlags state) { if (IsServer) CurrentState.Value &= ~state; }
     public bool HasState(StateFlags state) => (CurrentState.Value & state) != 0;
 
-    // [일정 시간 상태 적용 (기절, 둔화 등)]
+    // 일정 시간 상태 적용
     [ServerRpc(RequireOwnership = false)]
     public void ApplyTemporaryStateServerRpc(StateFlags state, float duration)
     {

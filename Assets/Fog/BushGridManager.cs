@@ -27,7 +27,7 @@ public class BushGridManager : MonoBehaviour
     // 1. 레이어를 기반으로 모든 바닥을 찾아 전체 영역 계산
     private void InitializeGrid()
     {
-        // 씬 내의 모든 Renderer를 찾아서 레이어 체크 (성능을 위해 Awake에서 1회 실행)
+        // 씬 내의 모든 Renderer를 찾아서 레이어 체크
         Renderer[] allRenderers = Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None);
         List<Renderer> grounds = new List<Renderer>();
 
@@ -60,7 +60,7 @@ public class BushGridManager : MonoBehaviour
         }
     }
 
-    // 2. 부쉬 위치를 스캔하여 그리드에 ID 저장 (Baking)
+    // 부쉬 위치를 스캔하여 그리드에 ID 저장
     private void BakeBushData()
     {
         if (_bushMap == null) return;
@@ -75,9 +75,9 @@ public class BushGridManager : MonoBehaviour
                 // 각 그리드 칸의 중심 월드 좌표 계산
                 Vector3 cellWorldPos = GetWorldPos(x, z);
 
-                // 해당 위치 위쪽에 부쉬가 있는지 레이캐스트 혹은 OverlapBox로 체크
-                // 0.1m 위에서 아래로 체크하여 부쉬 레이어만 감지
-                Collider[] hitBushes = Physics.OverlapBox(cellWorldPos + Vector3.up * 0.5f, new Vector3(cellSize / 2, 1f, cellSize / 2), Quaternion.identity, bushLayer);
+                // 부쉬 레이어만 감지
+                Collider[] hitBushes = Physics.OverlapBox(cellWorldPos + Vector3.up * 0.5f, 
+                    new Vector3(cellSize / 2, 1f, cellSize / 2), Quaternion.identity, bushLayer);
 
                 if (hitBushes.Length > 0)
                 {
@@ -90,7 +90,6 @@ public class BushGridManager : MonoBehaviour
                 }
             }
         }
-        Debug.Log("[그리드] 부쉬 데이터 베이킹 완료.");
     }
 
     private Vector3 GetWorldPos(int x, int z)

@@ -38,7 +38,7 @@ public class FieldOfView : MonoBehaviour
         viewRadius = isNightMode ? nightRadius : dayRadius;
     }
 
-    // 테스트를 위해 Update에서 변수 변경을 감지합니다.
+    // 테스트를 위해 Update에서 변수 변경을 감지
     void Update()
     {
         // 인스펙터에서 isNightMode 값을 바꾸면 자동으로 실행됨
@@ -76,7 +76,7 @@ public class FieldOfView : MonoBehaviour
         }
     }
 
-    // 부드럽게 값을 변경하는 코루틴 (Lerp)
+    // 부드럽게 값을 변경하는 Lerp
     private IEnumerator CoChangeRadius(float targetRadius, float duration)
     {
         float startRadius = viewRadius;

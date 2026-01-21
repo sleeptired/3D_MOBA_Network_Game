@@ -8,13 +8,13 @@ public class SkillSlotUI : MonoBehaviour
 {
     [Header("UI 컴포넌트 연결")]
     public Image iconImage;           // 스킬 아이콘
-    public Image cooldownOverlay;     // 어두운 막 (Filled 타입)
+    public Image cooldownOverlay;     // 어두운 막
     public TextMeshProUGUI timerText; // 남은 시간 숫자
 
     private float _maxCooldown;
     private float _currentCooldown;
 
-    // 초기화: 아이콘 설정
+    // 아이콘 설정
     public void SetSkill(SkillData data)
     {
         if (data != null && data.icon != null)
@@ -24,7 +24,7 @@ public class SkillSlotUI : MonoBehaviour
         }
         else
         {
-            // 아이콘 없으면 투명하게 처리하거나 기본 이미지
+ 
             iconImage.enabled = false;
         }
 
@@ -33,14 +33,13 @@ public class SkillSlotUI : MonoBehaviour
         timerText.text = "";
     }
 
-    // 외부(Player)에서 "스킬 썼다!"고 알려주는 함수
     public void UseSkill(float cooldownTime)
     {
         _maxCooldown = cooldownTime;
         _currentCooldown = cooldownTime;
 
         // UI 켜기
-        cooldownOverlay.fillAmount = 1; // 꽉 채움
+        cooldownOverlay.fillAmount = 1; 
     }
 
     void Update()
@@ -50,11 +49,10 @@ public class SkillSlotUI : MonoBehaviour
         {
             _currentCooldown -= Time.deltaTime;
 
-            // 1. 어두운 막 줄어들게 하기 (0~1 사이 값)
+            // 어두운 막 줄어들게 하기 (0~1 사이 값)
             cooldownOverlay.fillAmount = _currentCooldown / _maxCooldown;
 
-            // 2. 남은 시간 텍스트 표시 (소수점 1자리)
-            // 0.5초 ... 0.1초 ... 0.0초
+            // 남은 시간 텍스트 표시,소수점 1자리
             if (_currentCooldown > 0)
                 timerText.text = _currentCooldown.ToString("F1");
             else

@@ -13,7 +13,7 @@ public class SkillManager : MonoBehaviour
     private float _currentCoolQ = 0f;
     private float _currentCoolW = 0f;
 
-    // UI에게 알림을 줄 이벤트 (스킬타입, 전체쿨타임)
+    // UI에게 알림을 줄 이벤트
     public event Action<string, float> OnSkillUsed;
 
     void Update()
@@ -31,7 +31,7 @@ public class SkillManager : MonoBehaviour
         return false;
     }
 
-    // 스킬 사용 처리 (쿨타임 적용)
+    // 스킬 사용 처리 
     public void ApplyCooldown(string skillType)
     {
         if (skillType == "Q")

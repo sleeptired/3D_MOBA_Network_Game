@@ -6,16 +6,16 @@ using UnityEngine;
 public class UnitVisual : MonoBehaviour
 {
     [Header("색상을 바꿀 모델")]
-    public Renderer targetRenderer; // 플레이어의 몸통(Mesh)을 여기에 연결
+    public Renderer targetRenderer; // 플레이어의 Mesh
 
     private UnitStatus _status;
-    private Color _originalColor;   // 원래 색깔 저장소
+    private Color _originalColor;  
 
     private void Awake()
     {
         _status = GetComponent<UnitStatus>();
 
-        // 게임 시작 시 원래 색깔을 기억해둡니다. (나중에 복구해야 하니까)
+        // 게임 시작 시 원래 색깔을 기억
         if (targetRenderer != null)
         {
             _originalColor = targetRenderer.material.color;
@@ -24,7 +24,7 @@ public class UnitVisual : MonoBehaviour
 
     private void Start()
     {
-        // UnitStatus가 "나 상태 변했어!"라고 외칠 때(Event)를 듣기 위해 구독 신청
+        // Event를 듣기 위해 구독 신청
         if (_status != null)
         {
             _status.OnStateChanged += UpdateColor;
@@ -33,7 +33,7 @@ public class UnitVisual : MonoBehaviour
 
     private void OnDestroy()
     {
-        // 오브젝트가 사라질 때 구독 취소 (메모리 누수 방지)
+        // 오브젝트가 사라질 때 구독 취소
         if (_status != null)
         {
             _status.OnStateChanged -= UpdateColor;
@@ -45,7 +45,7 @@ public class UnitVisual : MonoBehaviour
     {
         if (targetRenderer == null) return;
 
-        // 1. 기절 상태인지 확인 (비트 연산)
+        // 기절 상태인지 확인 
         bool isStunned = (newState & UnitStatus.StateFlags.Stunned) != 0;
 
         if (isStunned)
@@ -60,7 +60,7 @@ public class UnitVisual : MonoBehaviour
 
             if (isSlowed)
             {
-                // (선택사항) 둔화면 파란색
+                // 둔화면 파란색
                 targetRenderer.material.color = Color.blue;
             }
             else

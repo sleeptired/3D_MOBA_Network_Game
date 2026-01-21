@@ -101,7 +101,7 @@ public class TargetingProjectile : NetworkBehaviour
     // 중복 충돌 방지 플래그
     private bool _hasHit = false;
 
-    // [추가] 꼬리표(TrailRenderer)나 자식 모델이 있을 수 있으므로 배열로 선언
+    // 자식 모델이 있을 수 있으므로 배열로 선언
     private Renderer[] _allRenderers;
     private Collider[] _allColliders;
 
@@ -113,7 +113,7 @@ public class TargetingProjectile : NetworkBehaviour
         _lifeTimer = 0f;
         _hasHit = false;
 
-        // [중요] 시작할 때 내 몸에 붙은 모든 그림(Renderer)과 충돌체(Collider)를 찾아서 켜줍니다.
+        // 시작할 때 내 몸에 붙은 Renderer과 Collider를 찾아서 킴
         _allRenderers = GetComponentsInChildren<Renderer>();
         _allColliders = GetComponentsInChildren<Collider>();
 
@@ -157,14 +157,7 @@ public class TargetingProjectile : NetworkBehaviour
         if (_hasHit) return;
         _hasHit = true;
 
-        // 1. 데미지 처리
-        if (_target.TryGetComponent(out UnitStatus status))
-        {
-            // status.TakeDamage(_damage);
-            Debug.Log($"[서버] 데미지 {_damage} 적용");
-        }
-
-        // 2. 클라이언트에게 "맞았으니 연출하고 사라져라!" 명령
+        // 클라이언트에게 맞았으니 사라져라고 보냄
         if (_target.TryGetComponent(out NetworkObject targetNetObj))
         {
             OnHitClientRpc(targetNetObj.NetworkObjectId);
@@ -174,36 +167,31 @@ public class TargetingProjectile : NetworkBehaviour
             OnHitClientRpc(0);
         }
 
-        // 3. [수정] 1초는 너무 깁니다. 0.1초면 충분합니다.
         StartCoroutine(DelayedDespawn());
     }
 
     [ClientRpc]
     private void OnHitClientRpc(ulong targetId)
     {
-        // 1. 위치 보정 (타겟 가슴팍으로 이동)
+        // 위치 보정 
         if (targetId != 0 && NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetId, out var targetObj))
         {
             transform.position = targetObj.transform.position + Vector3.up;
         }
 
-        // 2. [여기] 피격 이펙트 생성 (폭발 효과 등)
-        // Instantiate(HitEffectPrefab, transform.position, Quaternion.identity);
-
-        // 3. [핵심] 즉시 눈앞에서 사라지게 처리
+        // 눈앞에서 사라지게 처리
         SetVisuals(false);
     }
 
     private IEnumerator DelayedDespawn()
     {
-        // [수정] 0.1초만 대기 (네트워크 패킷이 갈 시간만 줌)
         // 유저 눈에는 이미 SetVisuals(false) 때문에 사라진 상태임
         yield return new WaitForSeconds(0.1f);
         DestroyProjectile();
     }
 
     private void DestroyProjectile()
-    {
+    {   
         if (NetworkObject.IsSpawned)
         {
             NetworkObject.Despawn(true);
@@ -223,4 +211,5 @@ public class TargetingProjectile : NetworkBehaviour
             foreach (var c in _allColliders) c.enabled = isActive;
         }
     }
+
 }

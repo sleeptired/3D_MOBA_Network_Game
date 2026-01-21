@@ -6,7 +6,7 @@ public class PoolManager : MonoBehaviour
 {
     public static PoolManager Instance;
 
-    // 이름표(String)로 창고(ObjectPool)를 찾는 사전
+    // String으로 ObjectPool를 찾는 Dictionary
     private Dictionary<string, ObjectPool> _poolDict = new Dictionary<string, ObjectPool>();
 
     private void Awake()
