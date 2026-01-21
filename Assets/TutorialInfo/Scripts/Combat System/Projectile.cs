@@ -42,6 +42,7 @@ public class Projectile : MonoBehaviour
         // [이동] 앞으로 전진
         // (단순 이동은 서버/클라 모두 실행해서 부드럽게 보이게 함)
         _tr.Translate(Vector3.forward * _speed * Time.deltaTime);
+
     }
 
     // [충돌 감지]
@@ -73,4 +74,6 @@ public class Projectile : MonoBehaviour
             Deactivate();
         }
     }
+
+
 }

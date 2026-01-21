@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
@@ -103,5 +104,29 @@ public class FanVisualizer : MonoBehaviour
         _mesh.vertices = vertices;
         _mesh.triangles = triangles;
         _mesh.RecalculateBounds();
+    }
+
+    void Update()
+    {
+        // 1. 현재 게임을 플레이 중인 '내 캐릭터'를 찾습니다.
+        if (NetworkManager.Singleton == null || NetworkManager.Singleton.LocalClient == null) return;
+
+        var localPlayer = NetworkManager.Singleton.LocalClient.PlayerObject;
+        if (localPlayer == null) return;
+
+        // 2. 내 캐릭터의 ApertureMask(시야 범위)를 가져옵니다.
+        // (플레이어 하위 오브젝트 구조에 맞춰 찾습니다)
+        Transform localAperture = localPlayer.transform.Find("ApetureMask");
+        if (localAperture == null) return;
+
+        // 3. 내 시야의 반지름을 계산합니다.
+        float currentVisionRadius = localAperture.lossyScale.x * 5f;
+
+        // 4. 내 위치와 이 스킬 이펙트 사이의 거리를 계산합니다.
+        float distance = Vector3.Distance(localPlayer.transform.position, transform.position);
+
+        // 5. 시야 범위 밖이면 메쉬를 숨깁니다.
+        // (주의: 활성화/비활성화가 아니라 Renderer만 끄는 것이 좋습니다)
+        _meshRenderer.enabled = (distance <= currentVisionRadius);
     }
 }
